@@ -18,8 +18,6 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Debug: see which backend URL the frontend is using
-    console.log("📡 API Base URL:", api.defaults.baseURL);
       // Signup
       await api.post("/auth/signup", form);
 
