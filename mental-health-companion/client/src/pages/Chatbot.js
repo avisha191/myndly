@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import api from "../api"; // Import the configured API client
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -41,13 +42,12 @@ export default function Chatbot() {
     }, 500);
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: currentInput }),
+      // Use the imported 'api' client instead of hardcoded 'fetch'
+      const res = await api.post("/chat", {
+        message: currentInput,
       });
 
-      const data = await res.json();
+      const data = res.data; // Axios wraps the response in a 'data' property
       let index = 0;
       const reply = data.reply;
       const botMsg = { role: "bot", content: "" };
@@ -79,6 +79,8 @@ export default function Chatbot() {
       typeNextChar();
     } catch (err) {
       console.error("Error:", err);
+      // Display a user-friendly error message
+      setMessages((prev) => [...prev, { role: "bot", content: "Oops, something went wrong. Please try again." }]);
       clearInterval(dotInterval);
       setLoading(false);
     }
@@ -112,8 +114,9 @@ export default function Chatbot() {
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           style={styles.input}
           placeholder="Type a message..."
+          disabled={loading}
         />
-        <button onClick={sendMessage} style={styles.sendBtn}>
+        <button onClick={sendMessage} style={styles.sendBtn} disabled={loading || !input.trim()}>
           ➤
         </button>
         {loading && (
