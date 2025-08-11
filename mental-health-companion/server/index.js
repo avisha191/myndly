@@ -1,20 +1,27 @@
-require('dotenv').config();   // Load env variables from .env
+require('dotenv').config(); 
 const express = require('express');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cors = require('cors'); // Import cors
 const authRoutes = require('./routes/auth');
 const chatbotRoutes = require('./routes/chatbot');
-const journalRoutes = require('./routes/journal');  // <--- added
-const moodRoutes = require('./routes/moodRoutes');  // match exact file name
+const journalRoutes = require('./routes/journal');
+const moodRoutes = require('./routes/moodRoutes');
 const insightsRoutes = require("./routes/insights");
 const userRoutes = require("./routes/user");
 
 
-const app = express();        // Create app
+const app = express();
 
-// Enable CORS so frontend (localhost:3000) can call backend (localhost:5000)
-app.use(cors());
+
+// --- Dynamic CORS Configuration ---
+// It's best to allow requests from the URL defined in an environment variable.
+// This allows you to use a different URL for local development vs. production.
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+const corsOptions = {
+  origin: frontendUrl,
+};
+app.use(cors(corsOptions));
 
 // Middleware to parse JSON
 app.use(express.json());
