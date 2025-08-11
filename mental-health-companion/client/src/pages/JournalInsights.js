@@ -1,25 +1,77 @@
 import React, { useEffect, useState } from "react";
+import api from "../api"; // Assuming 'api' is configured with your base URL
 
 export default function JournalInsights() {
   const [insights, setInsights] = useState("");
   const [loading, setLoading] = useState(true);
-  const userId = "Kavya123"; // Replace with actual logged-in user ID
-
+  
+  // Consolidate the logic into a single useEffect hook
   useEffect(() => {
-    const fetchInsights = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/insights/${userId}`);
-        const data = await res.json();
-        setInsights(data.summary || "No insights available yet.");
-      } catch (err) {
-        console.error("Error fetching insights:", err);
-        setInsights("Failed to load insights.");
-      } finally {
+    // This function will handle both token retrieval and data fetching
+    const fetchUserAndInsights = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        // If no token is found, stop loading and show the login message
         setLoading(false);
+        setInsights("Please log in to view your weekly insights.");
+        return;
+      }
+      
+      let userEmail = null;
+      try {
+        // Decode the token to get the user's email
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        userEmail = payload.email;
+      } catch (err) {
+        console.error("Error decoding token:", err);
+        setLoading(false);
+        setInsights("An error occurred with your session. Please log in again.");
+        return;
+      }
+      
+      // If we have an email, proceed with the API call
+      if (userEmail) {
+        try {
+          const res = await api.get(`/insights/${userEmail}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setInsights(res.data.summary || "No insights available yet.");
+        } catch (err) {
+          console.error("Error fetching insights:", err);
+          setInsights("Failed to load insights. Please check your network and try again.");
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // Fallback for cases where the token exists but the email can't be decoded
+        setLoading(false);
+        setInsights("An error occurred with your session. Please log in again.");
       }
     };
-    fetchInsights();
-  }, []);
+    
+    fetchUserAndInsights();
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  const insightContainerStyle = {
+    maxWidth: "700px",
+    margin: "0 auto",
+    background: "white",
+    borderRadius: "20px",
+    padding: "30px",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+    animation: "fadeIn 0.8s ease",
+  };
+
+  const insightTextStyle = {
+    fontSize: "1.2rem",
+    lineHeight: "1.6",
+    whiteSpace: "pre-line",
+    color: "#111827",
+  };
 
   return (
     <div
@@ -30,17 +82,7 @@ export default function JournalInsights() {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <div
-        style={{
-          maxWidth: "700px",
-          margin: "0 auto",
-          background: "white",
-          borderRadius: "20px",
-          padding: "30px",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-          animation: "fadeIn 0.8s ease",
-        }}
-      >
+      <div style={insightContainerStyle}>
         <h2
           style={{
             textAlign: "center",
@@ -71,14 +113,7 @@ export default function JournalInsights() {
               border: "1px solid #e5e7eb",
             }}
           >
-            <p
-              style={{
-                fontSize: "1.2rem",
-                lineHeight: "1.6",
-                whiteSpace: "pre-line",
-                color: "#111827",
-              }}
-            >
+            <p style={insightTextStyle}>
               {insights}
             </p>
           </div>
