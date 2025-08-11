@@ -1,12 +1,15 @@
 import axios from "axios";
 
-// Access the environment variable correctly.
-// Create React App projects use 'process.env' and a 'REACT_APP_' prefix.
-const baseURL = process.env.REACT_APP_API_URL;
+// Use a conditional check to set the base URL.
+// In a development environment, it will use your localhost URL.
+// In a production environment (like on Vercel), it will use the
+// environment variable you set, which should point to your backend.
+const baseURL = process.env.NODE_ENV === 'production'
+  ? process.env.REACT_APP_BACKEND_URL
+  : "http://localhost:5000/api";
 
-// Create an Axios instance with the base URL from the environment variable.
 const api = axios.create({
-  baseURL,
+  baseURL: baseURL,
 });
 
 export default api;
