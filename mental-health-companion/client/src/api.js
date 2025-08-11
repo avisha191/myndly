@@ -1,10 +1,12 @@
 import axios from "axios";
 
-// Use the Vercel environment variable for the backend URL, with a local fallback
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Access the environment variable correctly.
+// Create React App projects use 'process.env' and a 'REACT_APP_' prefix.
+const baseURL = process.env.REACT_APP_API_URL;
 
+// Create an Axios instance with the base URL from the environment variable.
 const api = axios.create({
-  baseURL: baseURL,
+  baseURL,
 });
 
 export default api;
