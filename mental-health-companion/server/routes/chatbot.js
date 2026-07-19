@@ -6,7 +6,7 @@ const router = express.Router();
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const GROQ_MODEL = "llama3-8b-8192"; // updated Groq model name
+const GROQ_MODEL = "llama-3.1-8b-instant"; // updated Groq model name
 
 router.post("/", async (req, res) => {
   const { message } = req.body;
