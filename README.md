@@ -82,9 +82,7 @@ Instead of simply storing journal entries, Myndly understands emotions, detects 
 
 # 🎥 Demo
 
-> Replace this section with your screen recording.
-
-https://github.com/user-attachments/your-demo-video
+https://youtu.be/mZ7bgnpugAc
 
 ---
 
